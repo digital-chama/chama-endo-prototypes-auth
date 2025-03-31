@@ -1,0 +1,1 @@
+export {default as ChamaLogo} from './fire-flames_11438916.png'
