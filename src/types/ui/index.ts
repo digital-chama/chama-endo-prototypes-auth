@@ -21,11 +21,24 @@ export enum AlertStatus {
 }
 
 export interface AlertAction {
-    label: string
-    handler: () => void
-  }
-  
+  label: string;
+  handler: () => void;
+}
 
 export interface AuthAlert {
   type: AlertType;
+  status: AlertStatus;
+  title: string;
+  message: string;
+  variant: AlertVariant;
+  action?: AlertAction;
+  duration?: number;
+  onDismiss?: () => void;
+  persist?: boolean;
+  resendVerificationEmail?: {
+    enabled: boolean;
+    email: string | null;
+    onResendSuccess: (email: string) => void;
+    onResendError: () => void;
+  };
 }
