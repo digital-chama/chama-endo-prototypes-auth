@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# cmag-endofin-webapp-prototypes
 
-## Getting Started
+## Changelog: Version 0.4
 
-First, run the development server:
+### Overview
+Version 0.4 introduces a major refactor of the alerting system, transitioning to a React Context API-based solution. This change resolves critical issues with the previous implementation, which suffered from brittle state management, alert conflicts, and complex dependencies. The new system improves maintainability, scalability, and user experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Key Changes
+- **Centralized Alert Management**:
+  - Replaced tightly coupled alert logic with a global `AlertContext` for managing alert states independently from individual components.
+  - Introduced a reusable `EnhancedAlert` component with standardized styling, persistence rules, and clear alert types (e.g., success, warning, error).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Authentication Improvements**:
+  - Decomposed the monolithic `UserAuthForm` into smaller, focused components like `SignInForm`, `SignUpForm`, and `AuthAlerts`.
+  - Added dynamic alerts for authentication scenarios such as email verification, password reset, and login errors.
+  - Improved type safety across authentication components with centralized and reusable type definitions.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Resolved Alert System Issues**:
+  - **Brittle State Management**:
+    - Addressed overlapping and interdependent state variables (e.g., `signupState`, `loginState`) that caused unpredictable behaviors.
+  - **Conflicting Alerts**:
+    - Fixed issues where multiple alerts displayed simultaneously or interfered with each other.
+    - Alerts now properly clear when users switch tabs or take new actions.
+  - **Complex Conditional Rendering**:
+    - Simplified alert conditions with centralized logic, ensuring consistent and predictable behavior.
+  - **Persistent Alerts**:
+    - Ensured alerts remain visible across navigation or tab switches (e.g., switching between Login and Signup).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **User Experience Enhancements**:
+  - Improved feedback for key actions:
+    - Clear alerts for unverified accounts, expired verification links, and successful email verifications.
+    - Real-time password validation feedback during signup and reset flows.
+  - Enhanced accessibility for alerts and form inputs, ensuring proper label associations and clear feedback.
 
-## Learn More
+### Bug Fixes
+- **Email Verification**:
+  - Fixed incorrect email context in alerts during login or verification flows.
+  - Added handling for expired verification links and alerts for already verified emails.
+- **Alert Conflicts**:
+  - Resolved issues with overlapping or disappearing alerts, ensuring only relevant alerts display for the user’s current action.
+- **Form Persistence**:
+  - Fixed issues where form data reset unexpectedly during tab switches or after errors.
 
-To learn more about Next.js, take a look at the following resources:
+### Technical Updates
+- **Modular Architecture**:
+  - Refactored the alerting system into modular components for better scalability and reuse.
+  - Introduced `useReducer` for predictable and maintainable state transitions.
+- **Improved Testing**:
+  - Enhanced test coverage for alerting and authentication flows.
+  - Simplified debugging with centralized logic and clear type definitions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This update resolves critical issues with the old alerting system, ensuring robust, maintainable, and user-friendly authentication workflows moving forward.
