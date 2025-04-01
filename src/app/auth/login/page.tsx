@@ -1,28 +1,30 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // Updated import from next/navigation
 import Image from "next/image";
 import { useAuth } from "@/contexts/GlobalAuthStateManager";
 import { ChamaLogo } from "@/assets/icons/Icons";
 import { AlertProvider } from "@/contexts/GlobalAlertManager";
+
 export default function AuthenticationPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/");
+      router.push("/"); // Updated to use push from App Router
     }
   }, [user, loading, router]);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-between">
+      <div className="flex w-full min-h-screen items-center justify-center">
         <div className="animate-pulse">Loading...</div>
       </div>
     );
   }
+  
   if (user) {
     return null;
   }
@@ -30,7 +32,7 @@ export default function AuthenticationPage() {
   return (
     <AlertProvider>
       <div className="relative min-h-screen w-full flex-col items-center justify-center flex md:grid lg:max-w-none lg:grid-cols-2 lg:px-0 md:grid-cols-1">
-        <div className="relative hidden h-full w-full flex-col bg-muted  p-10 text-white dark:border-r lg:flex">
+        <div className="relative hidden h-full w-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
           <div className="absolute inset-0 bg-zinc-900" />
           <div className="relative z-20 flex items-center text-lg font-medium">
             <Image
