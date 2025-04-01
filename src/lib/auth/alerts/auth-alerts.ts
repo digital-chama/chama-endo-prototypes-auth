@@ -295,7 +295,7 @@ export const AUTH_ALERTS: AlertsConfig = {
         status: AlertStatus.ERROR,
         title: 'Invalid Input',
         message: 'Password must meet all requirements',
-        variant: AlertVariant.CRITICAL,
+        variant: AlertVariant.CRITICAL, 
       },
       PASSWORD_MIN_LENGTH: {
         type: AlertType.FORM,
