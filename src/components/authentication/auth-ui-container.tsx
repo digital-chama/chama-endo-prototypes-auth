@@ -24,6 +24,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChamaLogo } from "@/assets/icons/Icons";
 import { type AuthMode, type AlertState, type AuthContentProps } from "@/types";
+import { ResetPasswordForm } from "./reset-password-form";
 
 export function AuthContent({
   variant = "default", //controls which authentication view to display
