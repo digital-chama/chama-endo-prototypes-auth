@@ -34,12 +34,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AuthModeSwitcher } from './auth-mode-switcher'
 import { signupForm } from './signup-form'
 import { AlertContainer } from './alert-container'
-const LoginSignupTabComposite = () => {
-    return (
-        <div>
+import { SocialLoginComposite } from './SocialLoginComposite'
 
-        </div>
-    )
+interface LoginSignupTabCompositeProps extends React.HTMLAttributes<HTMLDivElement> {
+    onTabChange?: (tab: AuthMode) => void        // Parent tab change callback
+    onAlertStateChange: React.Dispatch<React.SetStateAction<AlertState>>  // Alert state updater
 }
 
-export default LoginSignupTabComposite
+export function LoginSignupTabComposite({ className, onTabChange, onAlertStateChange, ...props }: LoginSignupTabCompositeProps) {
+    //state management for the forms and ui
+    const [currentTab, setCurrentTab] = React.useState('signin')
+    const searchParams = useSearchParams()
+    const formRef = React.useRef<HTMLFormElement>(null)
+    const loginFormRef = React.useRef<HTMLFormElement> (null)
+   //form data and validation state
+   const [formData, setFormData ] = React.useState<AuthFormData>({
+    loginEmail: '',
+    loginPassword: '',
+    signupEmail: '',
+    signupPassword: '',
+    signupName: ''
+
+   })
+
+   const [passwordError, setPasswordError] = React.useState<string>() 
+     // Alert and authentication state
+}
