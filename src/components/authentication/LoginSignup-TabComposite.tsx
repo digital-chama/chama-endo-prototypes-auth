@@ -3,28 +3,28 @@
 /**
  * LoginSignupTabComposite: The Authentication Form Manager
  * ---------------------------------------------------
- * Think of this as the main login and signup component where 
- * the auth forms and key auth components come together to 
- * create the main authentication tab component used in 
- * our login route: /login
- * 
+ * This component serves as the main authentication manager for login and signup functionality.
+ * It combines login, signup, and social authentication into a tabbed interface.
+ *
+ * Key Responsibilities:
  * - Manages Authentication Forms:
- *   • Handles login/signup tab switching
- *   • Coordinates form submissions
- *   • Manages form state and data
- * 
+ *   • Handles login/signup tab switching.
+ *   • Coordinates form submissions for login and signup.
+ *   • Manages form state and validation.
+ *
  * - Handles Authentication Flow:
- *   • Processes login/signup attempts
- *   • Manages success/error states
- *   • Handles redirects
- * 
+ *   • Processes login/signup attempts.
+ *   • Manages success/error states.
+ *   • Handles redirects after successful authentication.
+ *
  * - Coordinates UI Components:
- *   • Tab navigation
- *   • Alert displays
- *   • Social login options
+ *   • Tab navigation for login/signup.
+ *   • Alert displays for success/error messages.
+ *   • Social login options (e.g., Google, GitHub, Microsoft).
  */
+
 "use client"
-import * as  React from 'react'
+import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { LoginForm } from './login-form'
 import { AUTH_ALERTS } from '@/lib/auth/alerts/auth-alerts'
@@ -38,29 +38,47 @@ import { AlertContainer } from './alert-container'
 import { SocialLoginComposite } from './SocialLoginComposite'
 import { AuthAlerts } from './auth-alerts-orchestrator'
 
+/**
+ * Props for the LoginSignupTabComposite component.
+ */
 interface LoginSignupTabCompositeProps extends React.HTMLAttributes<HTMLDivElement> {
-    onTabChange?: (tab: AuthMode) => void        // Parent tab change callback
-    onAlertStateChange: React.Dispatch<React.SetStateAction<AlertState>>  // Alert state updater
+    onTabChange?: (tab: AuthMode) => void        // Callback for notifying parent about tab changes.
+    onAlertStateChange: React.Dispatch<React.SetStateAction<AlertState>>  // Callback for updating alert state.
 }
 
+/**
+ * LoginSignupTabComposite component.
+ * Combines login, signup, and social authentication into a tabbed interface.
+ *
+ * @param className - Additional class names for styling the component.
+ * @param onTabChange - Callback for notifying parent about tab changes.
+ * @param onAlertStateChange - Callback for updating alert state.
+ * @returns A JSX element for the authentication manager.
+ */
 export function LoginSignupTabComposite({ className, onTabChange, onAlertStateChange, ...props }: LoginSignupTabCompositeProps) {
-    //state management for the forms and ui
-    const [currentTab, setCurrentTab] = React.useState('signin')
+    // State to track the current active tab (login or signup).
+    const [currentTab, setCurrentTab] = React.useState<AuthMode>('signin')
+
+    // Hook to access URL search parameters (e.g., for error handling or redirection).
     const searchParams = useSearchParams()
-    const formRef = React.useRef<HTMLFormElement>(null) as React.RefObject<HTMLFormElement>
-    const loginFormRef = React.useRef<HTMLFormElement>(null) as React.RefObject<HTMLFormElement>
-    //form data and validation state
+
+    // Refs for managing form elements.
+    const formRef = React.useRef<HTMLFormElement>(null!)
+    const loginFormRef = React.useRef<HTMLFormElement>(null!) as React.RefObject<HTMLFormElement>
+
+    // State to manage form data for login and signup.
     const [formData, setFormData] = React.useState<AuthFormData>({
         loginEmail: '',
         loginPassword: '',
         signupEmail: '',
         signupPassword: '',
         signupName: ''
-
     })
 
+    // State to track password validation errors.
     const [passwordError, setPasswordError] = React.useState<string>()
-    // Alert and authentication statete, 
+
+    // State to manage alerts and authentication states.
     const [localAlertState, setLocalAlertState] = React.useState<AlertState>({
         error: null,
         message: null,
@@ -70,16 +88,20 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
         isPostSignup: false,
         showVerificationAlert: false
     })
-    //url parameters for error handling and email verification
+
+    // URL parameters for error handling and email verification.
     const error = searchParams.get('error')
     const urlEmail = searchParams.get('email')
 
-    //sync local alert state with the parent component
+    // Sync local alert state with the parent component.
     React.useEffect(() => {
         onAlertStateChange(localAlertState)
     }, [localAlertState, onAlertStateChange])
 
-    //handle tab switching and reset alerts
+    /**
+     * Handles tab switching and resets alerts.
+     * @param value - The new tab value (e.g., 'signin' or 'signup').
+     */
     const handleTabChange = React.useCallback((value: string) => {
         setCurrentTab(value as AuthMode)
         onTabChange?.(value as AuthMode)
@@ -91,29 +113,29 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
         }))
     }, [onTabChange])
 
-    //process login attempts 
+    /**
+     * Processes login attempts.
+     * @param formData - The form data submitted for login.
+     */
     const handleLogin = React.useCallback(async (formData: FormData): Promise<void> => {
         try {
             const result = await login({} as AuthFormState, formData)
 
-
             if (result.success) {
-                //handle success login
+                // Handle successful login.
                 setLocalAlertState(prev => ({
                     ...prev,
                     error: null,
                     message: AUTH_ALERTS.LOGIN.SUCCESS.message,
                     loginState: result
                 }))
-                //brief timeout to allow alert to show and redirect
-                //redirect users as soon as possible(0ms)
-                //Best practice for timeout only for debugging
+                // Redirect the user after a brief timeout.
                 setTimeout(() => {
                     const redirectTo = searchParams.get('redirect_to') || '/'
                     window.location.href = redirectTo
-                }, 0) //zero for speed. increase timeout if needed for debugging
+                }, 0)
             } else if (result.errors) {
-                //handle login errors
+                // Handle login errors.
                 setLocalAlertState(prev => ({
                     ...prev,
                     error: result.errors?.general || null,
@@ -124,25 +146,25 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
                 }))
             }
         } catch {
-            //handle unexpected errors
-            setLocalAlertState(prev =>
-            (
-                {
-                    ...prev,
-                    error: 'An error occured during login ',
-                    message: null,
-                    loginState: {}
-                }
-            )
-            )
-
+            // Handle unexpected errors during login.
+            setLocalAlertState(prev => ({
+                ...prev,
+                error: 'An error occurred during login',
+                message: null,
+                loginState: {}
+            }))
         }
     }, [searchParams])
-    // Process signup attempts
+
+    /**
+     * Processes signup attempts.
+     * @param formData - The form data submitted for signup.
+     */
     const handleSignup = React.useCallback(async (formData: FormData): Promise<void> => {
         try {
             const result = await signup({} as AuthFormState, formData)
             if (result.success) {
+                // Handle successful signup.
                 setLocalAlertState(prev => ({
                     ...prev,
                     error: null,
@@ -153,6 +175,7 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
                     email: result.email
                 }))
             } else if (result.errors) {
+                // Handle signup errors.
                 setLocalAlertState(prev => ({
                     ...prev,
                     error: result.errors?.general || result.errors?.email || null,
@@ -162,6 +185,7 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
                 }))
             }
         } catch {
+            // Handle unexpected errors during signup.
             setLocalAlertState(prev => ({
                 ...prev,
                 error: 'An error occurred during signup',
@@ -170,7 +194,8 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
             }))
         }
     }, [])
-    // Handle URL message parameters
+
+    // Handle URL message parameters.
     const message = searchParams.get('message')
     React.useEffect(() => {
         if (message) {
@@ -181,7 +206,8 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
             }))
         }
     }, [message])
-    // Handle URL error parameters
+
+    // Handle URL error parameters.
     React.useEffect(() => {
         if (error) {
             setLocalAlertState(prev => ({
@@ -192,7 +218,10 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
             }))
         }
     }, [error, urlEmail])
-    //Reset alert state
+
+    /**
+     * Resets the alert state.
+     */
     const handleAlertClose = React.useCallback(() => {
         setLocalAlertState(prev => ({
             ...prev,
@@ -202,73 +231,72 @@ export function LoginSignupTabComposite({ className, onTabChange, onAlertStateCh
         }))
     }, [])
 
-    const [SocialAuthState, setSocialAuthState ] = React.useState<SocialAuthState> 
-    ({
+    // State to track social authentication state.
+    const [socialAuthState, setSocialAuthState] = React.useState<SocialAuthState>({
         redirecting: false,
         provider: undefined
     })
-    return(
+
+    return (
         <div className={cn("grid gap-6", className)} {...props}>
-        <Tabs 
-          value={currentTab}
-          className="w-full"
-          onValueChange={handleTabChange}
-        >
-          {/* Alert displays */}
-          <div className="mt-4">
-            <AlertContainer 
-              className="mb-4" 
-              onAlertClose={handleAlertClose}
+            <Tabs
+                value={currentTab}
+                className="w-full"
+                onValueChange={handleTabChange}
+            >
+                {/* Alert displays */}
+                <div className="mt-4">
+                    <AlertContainer
+                        className="mb-4"
+                        onAlertClose={handleAlertClose}
+                    />
+                    <AuthAlerts
+                        error={localAlertState.error}
+                        message={localAlertState.message}
+                        verificationState={localAlertState.verificationState}
+                        showVerificationAlert={localAlertState.showVerificationAlert}
+                        email={localAlertState.email}
+                        socialAuthState={socialAuthState}
+                    />
+                </div>
+
+                {/* Tab navigation */}
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="signin">Sign In</TabsTrigger>
+                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                </TabsList>
+
+                {/* Authentication forms */}
+                <TabsContent value="signin">
+                    <LoginForm
+                        loginState={{}}
+                        loginAction={handleLogin}
+                        formRef={loginFormRef}
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
+                </TabsContent>
+                <TabsContent value="signup">
+                    <SignupForm
+                        signupState={{}}
+                        signupAction={handleSignup}
+                        formRef={formRef}
+                        formData={formData}
+                        setFormData={setFormData}
+                        passwordError={passwordError}
+                        setPasswordError={setPasswordError}
+                    />
+                </TabsContent>
+            </Tabs>
+
+            {/* Additional authentication options */}
+            <SocialLoginComposite
+                onSocialAuthStateChange={setSocialAuthState}
             />
-            <AuthAlerts
-              error={localAlertState.error}
-              message={localAlertState.message}
-              verificationState={localAlertState.verificationState}
-              showVerificationAlert={localAlertState.showVerificationAlert}
-              email={localAlertState.email}
-              socialAuthState={SocialAuthState}
+            <AuthModeSwitcher
+                currentTab={currentTab}
+                setCurrentTab={handleTabChange}
             />
-          </div>
-          
-          {/* Tab navigation */}
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-          
-          {/* Authentication forms */}
-          <TabsContent value="signin">
-            <LoginForm
-              loginState={{}}
-              loginAction={handleLogin}
-              formRef={loginFormRef}
-              formData={formData}
-              setFormData={setFormData}
-            />
-          </TabsContent>
-          <TabsContent value="signup">
-            <SignupForm
-              signupState={{}}
-              signupAction={handleSignup}
-              formRef={formRef}
-              formData={formData}
-              setFormData={setFormData}
-              passwordError={passwordError}
-              setPasswordError={setPasswordError}
-            />
-          </TabsContent>
-        </Tabs>
-        
-        {/* Additional authentication options */}
-        <SocialLoginComposite 
-          onSocialAuthStateChange={setSocialAuthState}
-        />
-        <AuthModeSwitcher 
-          currentTab={currentTab} 
-          setCurrentTab={handleTabChange}
-        />
-      </div>
+        </div>
     )
-
-
 }
