@@ -34,7 +34,7 @@ function SignUpButton() {
  * @param props - Props for customizing the form's behavior and appearance.
  * @returns A JSX element for the sign-up form.
  */
-export function signupForm({
+export function SignupForm({
   signupState, // State of the sign-up process (e.g., loading, errors).
   signupAction, // Action to handle form submission.
   formRef, // Reference to the form element.
